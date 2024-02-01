@@ -1,8 +1,7 @@
-import pygame
-import random
-import pygame_gui
+import pygame, random, pygame_gui
 
 pygame.init()
+
 
 class SpriteSheet():
     def __init__(self, image):
@@ -16,11 +15,13 @@ class SpriteSheet():
 
         return image
 
+
 counter = 0
 def draw():
+    global found_word
     WIN.blit(title_surf, title_rect)
 
-    if counter >= 0 and counter <= 8:
+    if counter >= 0 and counter <= 7:
         WIN.blit(frames[counter], (0, 150))
     
     # Calculate the total width of all the letters
@@ -29,6 +30,8 @@ def draw():
     start_x = (WIDTH - total_width) // 2
     # Start drawing from this x-coordinate
     x = start_x
+
+    found_word = True
     
     for letter in random_word:
         if letter in guessed_letters:
@@ -37,11 +40,13 @@ def draw():
         else:
             img = FONT.render("_", True, "White")  # Display underscores for unguessed letters
             WIN.blit(img, (x, HEIGHT/2))
+            found_word = False
         # Move to the next position for the next letter
         x += FONT.size(letter)[0]  # Increase x by the width of the current letter
         
         # Add some space between letters
         x += 10
+    
     
 def user_guess(letter):
     global counter
@@ -52,6 +57,14 @@ def user_guess(letter):
     else:
         counter += 1
 
+
+def restart_game():
+    global counter, guessed_letters, random_word
+
+    if counter == 7 or found_word:
+        counter = 0
+        guessed_letters = []
+        random_word = random.choice(list_of_words)
 
 
 list_of_words = ["apple", "banana", "coconut", "grape", "kiwi", "lemon", "mango", "orange", "pineapple", "raspberry", "strawberry", "watermelon"]
@@ -96,6 +109,7 @@ while running:
     draw()
     MANAGER.update(UI_REFRESH_RATE)
     MANAGER.draw_ui(WIN)
+    restart_game()
     pygame.display.update()
 
 pygame.quit()
